@@ -1,104 +1,139 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+  - [How to use x11vnc:](#how-to-use-x11vnc)
+- [usage: x11vnc_ssh <host>:<xdisplay>](#usage-x11vnc_ssh-hostxdisplay)
+- [e.g.: x11vnc_ssh snoopy.peanuts.com:0](#eg-x11vnc_ssh-snoopypeanutscom0)
+- [(user@host:N also works)](#userhostn-also-works)
+- [usage: x11vnc_ssh <host>:<xdisplay>](#usage-x11vnc_ssh-hostxdisplay-1)
+- [e.g.: x11vnc_ssh snoopy.peanuts.com:0](#eg-x11vnc_ssh-snoopypeanutscom0-1)
+- [(user@host:N also works)](#userhostn-also-works-1)
+- [usage: x11vnc_ssh <host>:<xdisplay>](#usage-x11vnc_ssh-hostxdisplay-2)
+- [e.g.: x11vnc_ssh snoopy.peanuts.com:0](#eg-x11vnc_ssh-snoopypeanutscom0-2)
+- [gzip -dc x11vnc-0.9.12.tar.gz | tar -xvf -](#gzip--dc-x11vnc-0912targz--tar--xvf--)
+- [cd x11vnc-0.9.12](#cd-x11vnc-0912)
+- [./configure](#configure)
+- [make](#make)
+- [cp ./x11vnc/x11vnc $HOME/bin](#cp-x11vncx11vnc-homebin)
+- [Build script for Solaris, etc, with gcc, libjpeg and libz in](#build-script-for-solaris-etc-with-gcc-libjpeg-and-libz-in)
+- [non-standard locations.](#non-standard-locations)
+- [set to get your gcc, etc:](#set-to-get-your-gcc-etc)
+- [](#)
+- [Below we assume headers in $JPEG/include and $ZLIB/include and the](#below-we-assume-headers-in-jpeginclude-and-zlibinclude-and-the)
+- [shared libraries are in $JPEG/lib and $ZLIB/lib.  If your situation](#shared-libraries-are-in-jpeglib-and-zliblib--if-your-situation)
+- [is different change the locations in the two lines below.](#is-different-change-the-locations-in-the-two-lines-below)
+- [](#-1)
+- [These two lines may not be needed on more recent Solaris releases:](#these-two-lines-may-not-be-needed-on-more-recent-solaris-releases)
+- [](#-2)
+- [These are for libXrandr.so on Solaris 10:](#these-are-for-libxrandrso-on-solaris-10)
+- [](#-3)
+- [Everything needs to built with _REENTRANT for thread safe errno:](#everything-needs-to-built-with-_reentrant-for-thread-safe-errno)
+- [](#-4)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 #x11vnc: a VNC server for real X displays
 
 
-   x11vnc allows one to view remotely and interact with real X displays
-   (i.e. a display corresponding to a physical monitor, keyboard, and
-   mouse) with any VNC viewer. In this way it plays the role for Unix/X11
-   that WinVNC plays for Windows.
+x11vnc allows one to view remotely and interact with real X displays
+(i.e. a display corresponding to a physical monitor, keyboard, and
+mouse) with any VNC viewer. In this way it plays the role for Unix/X11
+that WinVNC plays for Windows.
 
-   It has built-in SSL/TLS encryption and 2048 bit RSA authentication,
-   including VeNCrypt support; UNIX account and password login support;
-   server-side scaling; single port HTTPS/HTTP+VNC; Zeroconf service
-   advertising; and TightVNC and UltraVNC file-transfer. It has also been
-   extended to work with non-X devices: natively on Mac OS X Aqua/Quartz,
-   webcams and TV tuner capture devices, and embedded Linux systems such
-   as Qtopia Core. Full IPv6 support is provided. More features are
-   described here.
+It has built-in SSL/TLS encryption and 2048 bit RSA authentication,
+including VeNCrypt support; UNIX account and password login support;
+server-side scaling; single port HTTPS/HTTP+VNC; Zeroconf service
+advertising; and TightVNC and UltraVNC file-transfer. It has also been
+extended to work with non-X devices: natively on Mac OS X Aqua/Quartz,
+webcams and TV tuner capture devices, and embedded Linux systems such
+as Qtopia Core. Full IPv6 support is provided. More features are
+described here.
 
-   It also provides an encrypted Terminal Services mode (-create, -svc,
-   or -xdmsvc options) based on Unix usernames and Unix passwords where
-   the user does not need to memorize his VNC display/port number.
-   Normally a virtual X session (Xvfb) is created for each user, but it
-   also works with X sessions on physical hardware. See the tsvnc
-   terminal services mode of the SSVNC viewer for one way to take
-   advantage of this mode.
+It also provides an encrypted Terminal Services mode (-create, -svc,
+or -xdmsvc options) based on Unix usernames and Unix passwords where
+the user does not need to memorize his VNC display/port number.
+Normally a virtual X session (Xvfb) is created for each user, but it
+also works with X sessions on physical hardware. See the tsvnc
+terminal services mode of the SSVNC viewer for one way to take
+advantage of this mode.
 
-   I wrote x11vnc back in 2002 because x0rfbserver was basically
-   impossible to build on Solaris and had poor performance. The primary
-   x0rfbserver build problems centered around esoteric C++ toolkits.
-   x11vnc is written in plain C and needs only standard libraries and so
-   should work on nearly all Unixes, even very old ones. I also created
-   enhancements to improve the interactive response, added many features,
-   and etc.
+I wrote x11vnc back in 2002 because x0rfbserver was basically
+impossible to build on Solaris and had poor performance. The primary
+x0rfbserver build problems centered around esoteric C++ toolkits.
+x11vnc is written in plain C and needs only standard libraries and so
+should work on nearly all Unixes, even very old ones. I also created
+enhancements to improve the interactive response, added many features,
+and etc.
 
-     _________________________________________________________________
+  _________________________________________________________________
 
-    Background:
+##Background:
 
-   VNC (Virtual Network Computing) is a very useful network graphics
-   protocol (applications running on one computer but displaying their
-   windows on another) in the spirit of X, however, unlike X, the
-   viewing-end is very simple and maintains no state. It is a remote
-   framebuffer (RFB) protocol.
+VNC (Virtual Network Computing) is a very useful network graphics
+protocol (applications running on one computer but displaying their
+windows on another) in the spirit of X, however, unlike X, the
+viewing-end is very simple and maintains no state. It is a remote
+framebuffer (RFB) protocol.
 
-   Some VNC links:
-     * http://www.realvnc.com
-     * http://www.tightvnc.com
-     * http://www.ultravnc.com/
-     * http://www.testplant.com/products/vine_server/OS_X
+Some VNC links:
+  * http://www.realvnc.com
+  * http://www.tightvnc.com
+  * http://www.ultravnc.com/
+  * http://www.testplant.com/products/vine_server/OS_X
 
-   For Unix, the traditional VNC implementation includes a "virtual" X11
-   server Xvnc (usually launched via the vncserver command) that is not
-   associated with a physical display, but provides a "fake" one X11
-   clients (xterm, firefox, etc.) can attach to. A remote user then
-   connects to Xvnc via the VNC client vncviewer from anywhere on the
-   network to view and interact with the whole virtual X11 desktop.
+For Unix, the traditional VNC implementation includes a "virtual" X11
+server Xvnc (usually launched via the vncserver command) that is not
+associated with a physical display, but provides a "fake" one X11
+clients (xterm, firefox, etc.) can attach to. A remote user then
+connects to Xvnc via the VNC client vncviewer from anywhere on the
+network to view and interact with the whole virtual X11 desktop.
 
-   The VNC protocol is in most cases better suited for remote connections
-   with low bandwidth and high latency than is the X11 protocol because
-   it involves far fewer "roundtrips" (an exception is the cached pixmap
-   data on the viewing-end provided by X.) Also, with no state maintained
-   the viewing-end can crash, be rebooted, or relocated and the
-   applications and desktop continue running. Not so with X11.
+The VNC protocol is in most cases better suited for remote connections
+with low bandwidth and high latency than is the X11 protocol because
+it involves far fewer "roundtrips" (an exception is the cached pixmap
+data on the viewing-end provided by X.) Also, with no state maintained
+the viewing-end can crash, be rebooted, or relocated and the
+applications and desktop continue running. Not so with X11.
 
-   So the standard Xvnc/vncserver program is very useful, I use it for
-   things like:
-     * Desktop conferencing with other users (e.g. code reviews.)
-     * Long running apps/tasks I want to be able to view from many places
-       (e.g. from home and work.)
-     * Motif, GNOME, and similar applications that would yield very poor
-       performance over a high latency link.
+So the standard Xvnc/vncserver program is very useful, I use it for
+things like:
+  * Desktop conferencing with other users (e.g. code reviews.)
+  * Long running apps/tasks I want to be able to view from many places
+    (e.g. from home and work.)
+  * Motif, GNOME, and similar applications that would yield very poor
+    performance over a high latency link.
 
-   However, sometimes one wants to connect to a real X11 display (i.e.
-   one attached to a physical monitor, keyboard, and mouse: a Workstation
-   or a SunRay session) from far away. Maybe you want to close down an
-   application cleanly rather than using kill, or want to work a bit in
-   an already running application, or would like to help a distant
-   colleague solve a problem with their desktop, or would just like to
-   work out on the deck for a while. This is where x11vnc is useful.
-     _________________________________________________________________
+However, sometimes one wants to connect to a real X11 display (i.e.
+one attached to a physical monitor, keyboard, and mouse: a Workstation
+or a SunRay session) from far away. Maybe you want to close down an
+application cleanly rather than using kill, or want to work a bit in
+an already running application, or would like to help a distant
+colleague solve a problem with their desktop, or would just like to
+work out on the deck for a while. This is where x11vnc is useful.
+  _________________________________________________________________
 
-    How to use x11vnc:
+## How to use x11vnc:
 
-   In this basic example let's assume the remote machine with the X
-   display you wish to view is "far-away.east:0" and the workstation you
-   are presently working at is "sitting-here.west".
+In this basic example let's assume the remote machine with the X
+display you wish to view is "far-away.east:0" and the workstation you
+are presently working at is "sitting-here.west".
 
-   Step 0. Download x11vnc (see below) and have it available to run on
-   far-away.east (on some linux distros it is as easy as "apt-get install
-   x11vnc", "emerge x11vnc", etc.) Similarly, have a VNC viewer (e.g.
-   vncviewer) ready to run on sitting-here.west. We recommend TightVNC
-   Viewers (see also our SSVNC viewer.)
+Step 0. Download x11vnc (see below) and have it available to run on
+far-away.east (on some linux distros it is as easy as "apt-get install
+x11vnc", "emerge x11vnc", etc.) Similarly, have a VNC viewer (e.g.
+vncviewer) ready to run on sitting-here.west. We recommend TightVNC
+Viewers (see also our SSVNC viewer.)
 
-   Step 1. By some means log in to far-away.east and get a command shell
-   running there. You can use ssh, or even rlogin, telnet, or any other
-   method to do this. We do this because the x11vnc process needs to be
-   run on the same machine the X server process is running on (otherwise
-   things would be extremely slow.)
+Step 1. By some means log in to far-away.east and get a command shell
+running there. You can use ssh, or even rlogin, telnet, or any other
+method to do this. We do this because the x11vnc process needs to be
+run on the same machine the X server process is running on (otherwise
+things would be extremely slow.)
 
-   Step 2. In that far-away.east shell (with command prompt "far-away>"
-   in this example) run x11vnc directed at the far-away.east X session
-   display:
+Step 2. In that far-away.east shell (with command prompt "far-away>"
+in this example) run x11vnc directed at the far-away.east X session
+display:
 
   far-away> x11vnc -display :0
 
